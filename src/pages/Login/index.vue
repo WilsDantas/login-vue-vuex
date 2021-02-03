@@ -14,6 +14,12 @@
               </v-toolbar>
               <v-card-text>
                 <v-form>
+                  <div class="red--text" v-if="errors.message != undefined">
+                    {{ this.errors.message }}
+                  </div>
+                  <div class="red--text" v-if="errors.email != undefined">
+                    {{ this.errors.email[0] }}
+                  </div>
                   <v-text-field
                     prepend-inner-icon="mdi-account"
                     filled
@@ -22,6 +28,13 @@
                     type="text"
                     v-model="formData.email"
                   ></v-text-field>
+
+                  <div
+                    class="red--text"
+                    v-if="errors.password != undefined"
+                  >
+                    {{ this.errors.password[0] }}
+                  </div>
                   <v-text-field
                     id="password"
                     prepend-inner-icon="mdi-lock"
@@ -53,9 +66,11 @@ export default {
       email: "",
       password: "",
       formData: {},
+      errors: {},
     };
   },
   created: function () {
+    this.errors = { errors: {} };
     this.$store
       .dispatch("checkLogin")
       .then(() => this.$router.push({ name: "dashboard" }))
@@ -71,7 +86,11 @@ export default {
           });
         })
         .catch((error) => {
-          console.log("error");
+          if (error.response.data.errors != undefined) {
+            this.errors = error.response.data.errors;
+          } else {
+            this.errors = error.response.data;
+          }
         });
     },
   },
